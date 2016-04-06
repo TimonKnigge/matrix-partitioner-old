@@ -11,6 +11,10 @@ int main(int argc, char *argv[]) {
 		std::cerr << "\toutfile: Output location." << std::endl;
 	} else {
 		std::cerr << argv[0] << std::endl;
+		
+		matrix m;
+		std::cin >> m;
+		std::cout << m << std::flush;
 	}
 	
 	return 0;
