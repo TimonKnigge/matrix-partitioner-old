@@ -4,6 +4,8 @@
 	Representation of a matrix to be partitioned.
 */
 
+#pragma once
+
 #include <iostream>
 #include <vector>
 #include <memory>
