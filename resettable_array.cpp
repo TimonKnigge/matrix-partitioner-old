@@ -1,4 +1,5 @@
 #include <array>
+#include <limits>
 
 #include "resettable_array.h"
 
@@ -17,6 +18,14 @@ void resettable_array<T, N>::set(size_t i, T val) {
 template <class T, size_t N>
 void resettable_array<T, N>::reset_all() {
 	++current_time;
+	// Prevent overflow (todo: investigate necessity)
+	if (current_time == std::numeric_limits<size_t>::max()) {
+		current_time = 0;
+		for (size_t i = 0; i < N; ++i) {
+			value[i] = def;
+			timestamp[i] = 0;
+		}
+	}
 }
 
 template<class T, size_t N>

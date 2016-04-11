@@ -11,7 +11,7 @@
 // Type T, size N
 template<class T, size_t N>
 class resettable_array {
-
+	
 public:
 	// Default value to be returned
 	T def;
