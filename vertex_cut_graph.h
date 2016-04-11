@@ -26,7 +26,7 @@ public:
 	
 	// The number of vertices in the flow graph and the current
 	// maximal flow
-	const size_t V, flow = 0;
+	const size_t N, V, flow = 0;
 	
 	// The edgelist of the graph
 	std::vector<std::vector<vc_edge>> E;
@@ -39,8 +39,13 @@ public:
 	std::set<size_t> source, sink;
 	
 	flow_graph(size_t N)
-		: V(2 * N), E(2 * N, std::vector<vc_edge>()),
-		  active(2 * N, true) { }
+		: N(N), V(2 * N), E(2 * N, std::vector<vc_edge>()),
+		  active(2 * N, true) {
+		for (size_t i = 0; i < N; ++i) {
+			E[ invertex(i)].push_back(outvertex(i), 0, 1);
+			E[outvertex(i)].push_back( invertex(i), 0, 0);
+		}
+	}
 	
 	// Add an edge to the flow graph
 	void add_edge(size_t u, size_t v, size_t cap);
@@ -59,6 +64,7 @@ public:
 	void remove_sink(size_t u);
 
 private:
-	
+	static size_t  invertex(size_t u) { return 2 * u;     }
+	static size_t outvertex(size_t u) { return 2 * u + 1; }
 };
 
