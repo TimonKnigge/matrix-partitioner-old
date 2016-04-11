@@ -9,6 +9,7 @@
 #pragma once
 
 #include <vector>
+#include <set>
 
 // A directed edge in the flow graph.
 struct vc_edge{
@@ -28,29 +29,36 @@ public:
 	const size_t V, flow = 0;
 	
 	// The edgelist of the graph
-	vector<vector<vc_edge>> E;
+	std::vector<std::vector<vc_edge>> E;
 	
 	// Denotes for each vertex whether it is active (i.e. should
 	// be taken into account for finding the maximal vertex cut).
-	vector<bool> active;
+	std::vector<bool> active;
 	
 	// The current set of source/sink vertices
-	set<size_t> source, sink;
+	std::set<size_t> source, sink;
 	
 	flow_graph(size_t N)
-		: V(2 * N), E(2 * N, vector<vc_edge>()),
+		: V(2 * N), E(2 * N, std::vector<vc_edge>()),
 		  active(2 * N, true) { }
+	
+	// Add an edge to the flow graph
+	void add_edge(size_t u, size_t v, size_t cap);
 	
 	// Returns the maximal vertex cut.
 	size_t maximal_vertex_cut();
 	
 	// Getting and setting whether a vertex is active
 	bool is_active(size_t u);
-	bool set_activity(size_t u, bool active);
+	void set_activity(size_t u, bool active);
 	
+	// Add/remove source/sink vertices
 	void add_source(size_t u);
 	void remove_source(size_t u);
 	void add_sink(size_t u);
 	void remove_sink(size_t u);
+
+private:
+	
 };
 
