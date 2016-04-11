@@ -42,8 +42,8 @@ public:
 		: N(N), V(2 * N), E(2 * N, std::vector<vc_edge>()),
 		  active(2 * N, true) {
 		for (size_t i = 0; i < N; ++i) {
-			E[ invertex(i)].push_back(outvertex(i), 0, 1);
-			E[outvertex(i)].push_back( invertex(i), 0, 0);
+			E[ invertex(i)].push_back(vc_edge(outvertex(i), 0, 1));
+			E[outvertex(i)].push_back(vc_edge( invertex(i), 0, 0));
 		}
 	}
 	
@@ -55,7 +55,7 @@ public:
 	
 	// Getting and setting whether a vertex is active
 	bool is_active(size_t u);
-	void set_activity(size_t u, bool active);
+	void set_activity(size_t u, bool activity);
 	
 	// Add/remove source/sink vertices
 	void add_source(size_t u);
@@ -64,6 +64,8 @@ public:
 	void remove_sink(size_t u);
 
 private:
+	void update_flow(set<size_t> &sources, set<size_t> &sinks);
+	
 	static size_t  invertex(size_t u) { return 2 * u;     }
 	static size_t outvertex(size_t u) { return 2 * u + 1; }
 };
