@@ -1,5 +1,6 @@
 #include <iostream>
-#include "matrix.cpp"
+#include "matrix.h"
+#include "resettable_array.h"
 
 
 int main(int argc, char *argv[]) {

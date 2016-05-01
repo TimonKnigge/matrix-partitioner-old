@@ -8,8 +8,6 @@
 
 #include <vector>
 
-#include "matrix.h"
-
 enum class status {
 	unassigned, red, blue, cut, 
 	partialblue, partialred, implicitcut
