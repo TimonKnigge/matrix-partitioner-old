@@ -29,6 +29,10 @@ public:
 		stat[COL].assign(m.C, status::unassigned);
 	}
 	
+	// Decides whether the given row/colulmn can get the given
+	// status.
+	bool can_assign(row_or_col rc, status stat) const;
+	
 	// Assigns the given row/column the given status.
 	void assign(row_or_col rc, status stat);
 	
@@ -37,11 +41,11 @@ public:
 	
 	// Returns whether the current assignment may lead to
 	// a valid partition.
-	bool valid();
+	bool valid() const;
 	
 	// Gives a lower bound on the volume of all partitions
 	// that can be extended from the current, partial partition.
-	int lower_bound();
+	int lower_bound() const;
 	
 	// Sets the epsilon for the partition size (1+epsilon) partitioning
 	void set_epsilon(double epsilon);

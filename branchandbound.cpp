@@ -8,21 +8,28 @@
 #include "ppmatrix.h"
 #include "branchandbound.h"
 
+void recurse_single(row_or_col rc, std::stack<operation> &st, const ppmatrix &ppm, status stat) {
+	
+	st.push({
+		operation_type::undo,
+		rc.rowcol, rc.index,
+		ppm.stat[rc.rowcol][rc.index]});
+	st.push({
+		operation_type::descend,
+		rc.rowcol, rc.index,
+		stat});
+	
+}
 void recurse(size_t &next_rc, const std::vector<row_or_col> &rows_columns, std::stack<operation> &st, const ppmatrix &ppm) {
 	
-	size_t rc_type  = rows_columns[next_rc].rowcol;
-	size_t rc_index = rows_columns[next_rc].index;
+	row_or_col rc = rows_columns[next_rc];
 	
-	for (auto stat : {status::cut, status::blue, status::red}) {
-		st.push({
-			operation_type::undo,
-			rc_type, rc_index,
-			ppm.stat[rc_type][rc_index]});
-		st.push({
-			operation_type::descend,
-			rc_type, rc_index,
-			stat});
-	}
+	if (ppm.can_assign(rc, status::cut))
+		recurse_single(rc, st, ppm, status::cut);
+	if (ppm.can_assign(rc, status::red))
+		recurse_single(rc, st, ppm, status::red);
+	if (ppm.can_assign(rc, status::blue))
+		recurse_single(rc, st, ppm, status::blue);
 	
 	++next_rc;
 }
