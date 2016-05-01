@@ -42,8 +42,11 @@ public:
 	// Gives a lower bound on the volume of all partitions
 	// that can be extended from the current, partial partition.
 	int lower_bound();
+	
+	// Sets the epsilon for the partition size (1+epsilon) partitioning
+	void set_epsilon(double epsilon);
 
 private:
-	const size_t tmp = 0;
+	size_t cut = 0, implicitely_cut = 0;
 };
 
