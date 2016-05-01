@@ -25,7 +25,7 @@ void recurse(size_t &next_rc, std::vector<row_or_col> &rows_columns, std::stack<
 	++next_rc;
 }
 
-bool branchandbound::partition(double epsilon, std::vector<status> &row, std::vector<status> &col) {
+int branchandbound::partition(double epsilon, std::vector<status> &row, std::vector<status> &col) {
 	
 	// A list of all rows and columns, sort them in non-ascending order
 	// by number of nonzeros.
@@ -39,6 +39,11 @@ bool branchandbound::partition(double epsilon, std::vector<status> &row, std::ve
 		[this](const row_or_col &l, const row_or_col &r) {
 			return m.adj[l.rowcol][l.index] > m.adj[r.rowcol][r.index];	
 	});
+	
+	// Prepare to maintain an optimal solution
+	int optimal_value = -1LL;
+	row.assign(m.R, status::unassigned);
+	col.assign(m.C, status::unassigned);
 	
 	// Simulate recursion in the branch-and-bound tree
 	std::stack<operation> call_stack;
@@ -70,5 +75,5 @@ bool branchandbound::partition(double epsilon, std::vector<status> &row, std::ve
 		}
 	}
 	
-	return false;
+	return optimal_value;
 }

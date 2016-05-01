@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 		
 		branchandbound bb(m);
 		std::vector<status> r, c;
-		bb.partition(0.0, r, c);
+		std::cerr << "Result: " << bb.partition(0.0, r, c) << std::endl;
 	}
 	
 	return 0;

@@ -27,12 +27,12 @@ public:
 	abstract_partitioner(matrix &_m)
 		: m(_m) { }
 	
-	// Partitions a matrix with an (1+epsilon) balance. Returns false 
-	// if the matrix could not be partitioned, and true otherwise. If
-	// the matrix is successfully partitioned, the row and col vectors
-	// contain an assignment of the rows and columns (all elements will
-	// have the form unassigned, red or blue).
-	virtual bool partition(double epsilon, std::vector<status> &row, std::vector<status> &col) = 0;
+	// Partitions a matrix with an (1+epsilon) balance. Returns -1 
+	// if the matrix could not be partitioned, and the optimal volume
+	// otherwise. If the matrix is successfully partitioned, the row 
+	// and col vectors contain an assignment of the rows and columns
+	// (all elements will have the form unassigned, red or blue).
+	virtual int partition(double epsilon, std::vector<status> &row, std::vector<status> &col) = 0;
 	
 protected:
 	matrix &m;

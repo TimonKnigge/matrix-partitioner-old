@@ -23,7 +23,7 @@ public:
 		: abstract_partitioner(_m) { }
 	
 	// see abstract_partitioner.h
-	bool partition(double epsilon, std::vector<status> &row, std::vector<status> &col);
+	int partition(double epsilon, std::vector<status> &row, std::vector<status> &col);
 	
 //private:
 	
