@@ -1,5 +1,8 @@
 #include <iostream>
+
 #include "matrix.h"
+#include "abstract_partitioner.h"
+#include "branchandbound.h"
 #include "resettable_array.h"
 
 
@@ -16,6 +19,10 @@ int main(int argc, char *argv[]) {
 		matrix m;
 		std::cin >> m;
 		std::cout << m << std::flush;
+		
+		branchandbound bb(m);
+		std::vector<status> r, c;
+		bb.partition(0.0, r, c);
 	}
 	
 	return 0;

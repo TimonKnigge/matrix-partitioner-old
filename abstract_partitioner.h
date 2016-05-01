@@ -9,15 +9,15 @@
 #include <vector>
 
 enum class status {
-	unassigned, red, blue, cut, 
-	partialblue, partialred, implicitcut
+	unassigned = 2, red = 0, blue = 1, cut = 4, 
+	partialblue = 5, partialred = 6, implicitcut = 7
 };
 
-status to_partial(status st) {
-	return (st == status.red ? status.partialred : status.partialblue);
+inline status to_partial(status st) {
+	return (st == status::red ? status::partialred : status::partialblue);
 }
-status from_partial(status st) {
-	return (st == status.partialred ? status.red : status.blue);
+inline status from_partial(status st) {
+	return (st == status::partialred ? status::red : status::blue);
 }
 
 class abstract_partitioner {
@@ -32,7 +32,7 @@ public:
 	// the matrix is successfully partitioned, the row and col vectors
 	// contain an assignment of the rows and columns (all elements will
 	// have the form unassigned, red or blue).
-	virtual bool partition(double epsilon, vector<status> &row, vector<status> &col) = 0;
+	virtual bool partition(double epsilon, std::vector<status> &row, std::vector<status> &col) = 0;
 	
 protected:
 	matrix &m;

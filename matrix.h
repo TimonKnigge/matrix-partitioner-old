@@ -20,6 +20,11 @@ struct entry {
 	size_t index[2], &ri = index[ROW], &ci = index[COL];
 };
 
+// Represents a row or column
+struct row_or_col {
+	size_t rowcol;
+	size_t index;
+};
 
 class matrix {
 

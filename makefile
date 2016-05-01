@@ -1,8 +1,8 @@
 CC=g++
-CFLAGS=-std=gnu++11 -Wall -O2 -c
-LFLAGS=-std=gnu++11 -Wall -O2
+CFLAGS=-std=gnu++11 -Wall -Wfatal-errors -O2 -c
+LFLAGS=-std=gnu++11 -Wall -Wfatal-errors -O2
 EXEC=a.out
-SOURCES=main.cpp matrix.cpp resettable_array.cpp
+SOURCES=main.cpp matrix.cpp resettable_array.cpp branchandbound.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 
 all: $(SOURCES) $(EXEC)

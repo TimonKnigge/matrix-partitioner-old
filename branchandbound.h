@@ -8,8 +8,13 @@
 
 #include <vector>
 
-#include "branchandbound.h"
-#include "matrix.h"
+enum class operation_type { descend, undo };
+struct operation {
+	operation_type type;
+	size_t rowcol;
+	size_t index;
+	status value;
+};
 
 class branchandbound : public abstract_partitioner {
 	
@@ -18,7 +23,7 @@ public:
 		: abstract_partitioner(_m) { }
 	
 	// see abstract_partitioner.h
-	bool partition(double epsilon, vector<status> &row, vector<status> &col);
+	bool partition(double epsilon, std::vector<status> &row, std::vector<status> &col);
 	
 //private:
 	
