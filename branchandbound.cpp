@@ -8,18 +8,19 @@
 #include "ppmatrix.h"
 #include "branchandbound.h"
 
-void recurse(size_t &next_rc, std::vector<row_or_col> &rows_columns, std::stack<operation> &st) {
+void recurse(size_t &next_rc, const std::vector<row_or_col> &rows_columns, std::stack<operation> &st, const ppmatrix &ppm) {
+	
+	size_t rc_type  = rows_columns[next_rc].rowcol;
+	size_t rc_index = rows_columns[next_rc].index;
 	
 	for (auto stat : {status::cut, status::blue, status::red}) {
 		st.push({
 			operation_type::undo,
-			rows_columns[next_rc].rowcol,
-			rows_columns[next_rc].index,
-			stat});
+			rc_type, rc_index,
+			ppm.stat[rc_type][rc_index]});
 		st.push({
 			operation_type::descend,
-			rows_columns[next_rc].rowcol,
-			rows_columns[next_rc].index,
+			rc_type, rc_index,
 			stat});
 	}
 	
@@ -48,7 +49,7 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 	
 	// Simulate recursion in the branch-and-bound tree
 	std::stack<operation> call_stack;
-	recurse(next_rc, rows_columns, call_stack);
+	recurse(next_rc, rows_columns, call_stack, partial_partition);
 	while (call_stack.size() > 0) {
 		
 		if (call_stack.top().type == operation_type::descend) {
@@ -59,7 +60,7 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 			if (next_rc < rows_columns.size()) {
 
 				if (partial_partition.valid() && (partial_partition.lower_bound() < optimal_value || optimal_value == -1))
-					recurse(next_rc, rows_columns, call_stack);
+					recurse(next_rc, rows_columns, call_stack, partial_partition);
 			} else {
 				
 				if (partial_partition.valid() && (partial_partition.lower_bound() < optimal_value || optimal_value == -1)) {

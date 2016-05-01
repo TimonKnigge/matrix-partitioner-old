@@ -29,6 +29,12 @@ public:
 		stat[COL].assign(m.C, status::unassigned);
 	}
 	
+	// Assigns the given row/column the given status.
+	void assign(row_or_col rc, status stat);
+	
+	// Undoes the above assignment, with a hint towards the old status.
+	void undo(row_or_col rc, status hint);
+	
 	// Returns whether the current assignment may lead to
 	// a valid partition.
 	bool valid();
