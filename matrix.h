@@ -38,7 +38,7 @@ public:
 	
 	// The number of rows, columns and non-zeros in the matrix
 	size_t R, C;
-	int NZ = 0;
+	unsigned int NZ = 0;
 
 private:
 	// Add a nonzero entry in position (r, c) with 0<=r<R and

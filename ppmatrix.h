@@ -23,10 +23,18 @@ public:
 	size_t partition_size[2] = {0, 0};
 	size_t max_partition_size;
 	
+	// Count the number of colors in each row/column:
+	// color_count[ROW/COL][red/blue][index]
+	std::vector<size_t> color_count[2][2];
+	
 	ppmatrix(const matrix &_m)
 		: m(_m) {
 		stat[ROW].assign(m.R, status::unassigned);
 		stat[COL].assign(m.C, status::unassigned);
+		for (size_t c = 0; c < 2; ++c) {
+			color_count[ROW][c].assign(m.R, 0);
+			color_count[COL][c].assign(m.C, 0);
+		}
 	}
 	
 	// Decides whether the given row/colulmn can get the given
@@ -50,7 +58,11 @@ public:
 	// Sets the epsilon for the partition size (1+epsilon) partitioning
 	void set_epsilon(double epsilon);
 
-private:
+	// Overload I\O
+	friend std::istream &operator>>(std::istream &stream,       ppmatrix &ppm);
+	friend std::ostream &operator<<(std::ostream &stream, const ppmatrix &ppm);
+
+//private:
 	size_t cut = 0, implicitely_cut = 0;
 };
 

@@ -9,8 +9,8 @@
 #include <vector>
 
 enum class status {
-	unassigned = 2, red = 0, blue = 1, cut = 4, 
-	partialblue = 5, partialred = 6, implicitcut = 7
+	unassigned = 2, red = 0, blue = 1, cut = 3, 
+	partialblue = 4, partialred = 5, implicitcut = 6
 };
 
 inline status to_partial(status st) {
@@ -18,6 +18,13 @@ inline status to_partial(status st) {
 }
 inline status from_partial(status st) {
 	return (st == status::partialred ? status::red : status::blue);
+}
+inline status color_swap(status st) {
+	if (st == status::partialred ) return status::partialblue;
+	if (st == status::partialblue) return status::partialred;
+	if (st == status::red ) return status::blue;
+	if (st == status::blue) return status::red;
+	return st;
 }
 
 class abstract_partitioner {

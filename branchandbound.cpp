@@ -31,7 +31,6 @@ void recurse(size_t &next_rc, const std::vector<row_or_col> &rows_columns, std::
 	if (ppm.can_assign(rc, status::blue))
 		recurse_single(rc, st, ppm, status::blue);
 	
-	++next_rc;
 }
 
 int branchandbound::partition(double epsilon, std::vector<status> &row, std::vector<status> &col) {
@@ -54,11 +53,25 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 	row.assign(m.R, status::unassigned);
 	col.assign(m.C, status::unassigned);
 	
+	// Check validity
+	partial_partition.set_epsilon(epsilon);
+	if (2 * partial_partition.max_partition_size < m.NZ) {
+		std::cerr << "Current values of epsilon and NZ do not allow a partition." << std::endl;
+		return -1;
+	}
+	
+	std::cerr << "ROWS" << std::endl;
+	for (size_t r = 0; r < m.R; ++r)
+		for (auto e : m.adj[ROW][r])
+			std::cerr << "(" << e->index[0] << "," << e->index[1] << ")" << std::endl;
+	
 	// Simulate recursion in the branch-and-bound tree
 	std::stack<operation> call_stack;
 	recurse(next_rc, rows_columns, call_stack, partial_partition);
 	while (call_stack.size() > 0) {
 		
+		std::cerr << next_rc << std::endl;
+		std::cerr << partial_partition << std::endl;
 		if (call_stack.top().type == operation_type::descend) {
 			
 			partial_partition.assign(
@@ -67,14 +80,18 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 				call_stack.top().value);
 			
 			call_stack.pop();
+			++next_rc;
+
 			if (next_rc < rows_columns.size()) {
 
-				if (partial_partition.valid() && (partial_partition.lower_bound() < optimal_value || optimal_value == -1))
+				if (partial_partition.valid() && (partial_partition.lower_bound() < optimal_value || optimal_value == -1)) {
 					recurse(next_rc, rows_columns, call_stack, partial_partition);
+				}
 			} else {
 				
 				if (partial_partition.valid() && (partial_partition.lower_bound() < optimal_value || optimal_value == -1)) {
 					optimal_value = partial_partition.lower_bound();
+					std::cerr << "OPT! " << optimal_value << std::endl;
 					std::copy(
 						partial_partition.stat[ROW].begin(),
 						partial_partition.stat[ROW].end(),
@@ -84,8 +101,7 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 						partial_partition.stat[COL].end(),
 						col.begin());
 				}
-
-				++next_rc;
+				
 			}
 		} else {
 			
