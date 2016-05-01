@@ -37,6 +37,6 @@ public:
 	virtual bool partition(double epsilon, vector<status> &row, vector<status> &col) = 0;
 	
 protected:
-	matrix &m
+	matrix &m;
 };
 
