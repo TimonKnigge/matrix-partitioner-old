@@ -11,6 +11,9 @@
 #include <memory>
 
 constexpr size_t ROW = 0, COL = 1;
+inline size_t invert_rowcol(size_t rc) {
+	return 1 - rc;
+}
 
 // Represents a non-zero in the matrix
 struct entry {

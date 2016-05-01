@@ -61,7 +61,10 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 		
 		if (call_stack.top().type == operation_type::descend) {
 			
-			// TODO: Calculate/update the lowerbound
+			partial_partition.assign(
+				{call_stack.top().rowcol,
+				 call_stack.top().index},
+				call_stack.top().value);
 			
 			call_stack.pop();
 			if (next_rc < rows_columns.size()) {
@@ -86,7 +89,10 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 			}
 		} else {
 			
-			// TODO: Calculate/update the lowerbound
+			partial_partition.undo(
+				{call_stack.top().rowcol,
+				 call_stack.top().index},
+				call_stack.top().value);
 			
 			call_stack.pop();
 			--next_rc;

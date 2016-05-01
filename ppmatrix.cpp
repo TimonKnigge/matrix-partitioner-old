@@ -35,3 +35,27 @@ bool ppmatrix::valid() const {
 int ppmatrix::lower_bound() const {
 	return (int)(cut + implicitely_cut);
 }
+
+void ppmatrix::assign(row_or_col rc, status newstat) {
+	
+	status oldstat = stat[rc.rowcol][rc.index];
+	
+	switch (newstat) {
+		case status::cut:
+			if (oldstat == status::implicitcut)
+				--implicitely_cut;
+			stat[rc.rowcol][rc.index] = newstat;
+			++cut;
+			break;
+		case status::red:
+		case status::blue:
+			
+			break;
+	}
+}
+
+void ppmatrix::undo(row_or_col rc, status oldstat) {
+	
+	status newstat = stat[rc.rowcol][rc.index];
+	
+}
