@@ -1,6 +1,9 @@
 # Vim
 *.swp
 
+# Test matrices
+*.mtx
+
 # Compiled Object files
 *.slo
 *.lo
