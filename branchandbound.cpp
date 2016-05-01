@@ -42,7 +42,7 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 	});
 	
 	// Prepare to maintain an optimal solution
-	int optimal_value = -1LL;
+	int optimal_value = -1;
 	row.assign(m.R, status::unassigned);
 	col.assign(m.C, status::unassigned);
 	
@@ -58,7 +58,7 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 			call_stack.pop();
 			if (next_rc < rows_columns.size()) {
 
-				if (partial_partition.valid() && partial_partition.lower_bound() < optimal_value)
+				if (partial_partition.valid() && (partial_partition.lower_bound() < optimal_value || optimal_value == -1))
 					recurse(next_rc, rows_columns, call_stack);
 			} else {
 				
