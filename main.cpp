@@ -2,6 +2,7 @@
 
 #include "matrix.h"
 #include "abstract_partitioner.h"
+#include "ppmatrix.h"
 #include "branchandbound.h"
 #include "resettable_array.h"
 

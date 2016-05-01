@@ -16,18 +16,17 @@ public:
 	const matrix &m;
 	
 	// The current status of all rows and columns.
-	std::vector<status> status[2];
+	std::vector<status> stat[2];
 	
 	// The current size of the partition, and the maximal
 	// size of a partition.
 	size_t partition_size[2] = {0, 0};
-	const size_t max_partition_size;
+	size_t max_partition_size;
 	
-	ppmatrix(matrix &_m, double epsilon)
+	ppmatrix(const matrix &_m)
 		: m(_m) {
-		row.assign(m.R, status::unassigned);
-		col.assign(m.C, status::unassigned);
-		max_partition_size = (size_t)floor((1.0 + epsilon) * m.NZ / 2.0);
+		stat[ROW].assign(m.R, status::unassigned);
+		stat[COL].assign(m.C, status::unassigned);
 	}
 	
 	// Returns whether the current assignment may lead to
@@ -36,9 +35,9 @@ public:
 	
 	// Gives a lower bound on the volume of all partitions
 	// that can be extended from the current, partial partition.
-	size_t lower_bound();
+	int lower_bound();
 
 private:
-	const size_t 
+	const size_t tmp = 0;
 };
 

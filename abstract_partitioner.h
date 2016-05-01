@@ -24,7 +24,7 @@ class abstract_partitioner {
 
 public:
 	// Constructs a matrix partitioner around the given matrix.
-	abstract_partitioner(matrix &_m)
+	abstract_partitioner(const matrix &_m)
 		: m(_m) { }
 	
 	// Partitions a matrix with an (1+epsilon) balance. Returns -1 
@@ -35,6 +35,6 @@ public:
 	virtual int partition(double epsilon, std::vector<status> &row, std::vector<status> &col) = 0;
 	
 protected:
-	matrix &m;
+	const matrix &m;
 };
 

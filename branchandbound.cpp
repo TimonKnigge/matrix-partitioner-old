@@ -5,6 +5,7 @@
 
 #include "matrix.h"
 #include "abstract_partitioner.h"
+#include "ppmatrix.h"
 #include "branchandbound.h"
 
 void recurse(size_t &next_rc, std::vector<row_or_col> &rows_columns, std::stack<operation> &st) {
@@ -57,12 +58,21 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 			call_stack.pop();
 			if (next_rc < rows_columns.size()) {
 
-				// TODO: Decide if we should continue branching
-
-				recurse(next_rc, rows_columns, call_stack);
+				if (partial_partition.valid() && partial_partition.lower_bound() < optimal_value)
+					recurse(next_rc, rows_columns, call_stack);
 			} else {
 				
-				// TODO: Store the solution if optimal
+				if (partial_partition.valid() && partial_partition.lower_bound() < optimal_value) {
+					optimal_value = partial_partition.lower_bound();
+					std::copy(
+						partial_partition.stat[ROW].begin(),
+						partial_partition.stat[ROW].end(),
+						row.begin());
+					std::copy(
+						partial_partition.stat[COL].begin(),
+						partial_partition.stat[COL].end(),
+						col.begin());
+				}
 
 				++next_rc;
 			}

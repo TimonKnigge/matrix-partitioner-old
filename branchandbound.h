@@ -19,12 +19,14 @@ struct operation {
 class branchandbound : public abstract_partitioner {
 	
 public:
-	branchandbound(matrix &_m)
-		: abstract_partitioner(_m) { }
+	branchandbound(const matrix &_m)
+		: abstract_partitioner(_m),
+		  partial_partition(_m) { }
 	
 	// see abstract_partitioner.h
 	int partition(double epsilon, std::vector<status> &row, std::vector<status> &col);
 	
-//private:
+private:
+	ppmatrix partial_partition;
 	
 };
