@@ -62,7 +62,7 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 					recurse(next_rc, rows_columns, call_stack);
 			} else {
 				
-				if (partial_partition.valid() && partial_partition.lower_bound() < optimal_value) {
+				if (partial_partition.valid() && (partial_partition.lower_bound() < optimal_value || optimal_value == -1)) {
 					optimal_value = partial_partition.lower_bound();
 					std::copy(
 						partial_partition.stat[ROW].begin(),
