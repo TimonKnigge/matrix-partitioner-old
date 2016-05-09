@@ -94,27 +94,19 @@ void ppmatrix::assign(row_or_col rc, status newstat) {
 				++color_count[rc.rowcol][color][rc.index];
 				++color_count[invert_rowcol(rc.rowcol)][color][e->pos[invert_rowcol(rc.rowcol)]];
 				++partition_size[color];
-				
-#ifdef PACKING_BOUND_1
-				if (is_partial(other)) {
-					int icolor = static_cast<int>(from_partial(other));
-					if (icolor == color) {
-						total_free_in_partial[irc][icolor] += free;
-						++free_in_partial[irc][icolor][free];
-					}
-				}
-#endif
-				if (other == status::unassigned) {
+
+				if (other == status::unassigned)
 					other = to_partial(newstat);
-#ifdef PACKING_BOUND_1
-					total_free_in_partial[irc][color] += free;
-					++free_in_partial[irc][color][free];
-#endif
-				}
 				if (other == to_partial(color_swap(newstat))) {
 					other = status::implicitcut;
 					++implicitely_cut;
 				}
+#ifdef PACKING_BOUND_1
+				if (is_partial(other)) {
+					total_free_in_partial[irc][color] += free;
+					++free_in_partial[irc][color][free];
+				}
+#endif
 			}
 			break;
 		}
