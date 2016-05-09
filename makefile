@@ -2,7 +2,8 @@ CC=g++
 CFLAGS=-std=gnu++11 -Wall -Wfatal-errors -O2 -c
 LFLAGS=-std=gnu++11 -Wall -Wfatal-errors -O2
 EXEC=a.out
-SOURCES=main.cpp matrix.cpp resettable_array.cpp ppmatrix.cpp branchandbound.cpp
+RAWSOURCES=main.cpp matrix.cpp resettable_array.cpp ppmatrix.cpp branchandbound.cpp
+SOURCES=$(addprefix src/,$(RAWSOURCES))
 OBJECTS=$(SOURCES:.cpp=.o)
 
 all: $(SOURCES) $(EXEC)
@@ -14,5 +15,5 @@ $(EXEC): $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm -f *.o
-	rm -f $(EXEC)
+	rm -rf src/*.o
+	rm -rf $(EXEC)
