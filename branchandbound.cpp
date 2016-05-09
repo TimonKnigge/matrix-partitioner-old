@@ -60,18 +60,11 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 		return -1;
 	}
 	
-	std::cerr << "ROWS" << std::endl;
-	for (size_t r = 0; r < m.R; ++r)
-		for (auto e : m.adj[ROW][r])
-			std::cerr << "(" << e->index[0] << "," << e->index[1] << ")" << std::endl;
-	
 	// Simulate recursion in the branch-and-bound tree
 	std::stack<operation> call_stack;
 	recurse(next_rc, rows_columns, call_stack, partial_partition);
 	while (call_stack.size() > 0) {
 		
-		std::cerr << next_rc << std::endl;
-		std::cerr << partial_partition << std::endl;
 		if (call_stack.top().type == operation_type::descend) {
 			
 			partial_partition.assign(
@@ -91,7 +84,6 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 				
 				if (partial_partition.valid() && (partial_partition.lower_bound() < optimal_value || optimal_value == -1)) {
 					optimal_value = partial_partition.lower_bound();
-					std::cerr << "OPT! " << optimal_value << std::endl;
 					std::copy(
 						partial_partition.stat[ROW].begin(),
 						partial_partition.stat[ROW].end(),
@@ -116,4 +108,36 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 	}
 	
 	return optimal_value;
+}
+
+void print_colored(const matrix &m, std::vector<status> &r, std::vector<status> &c) {
+	std::string RED  = "\033[31m";
+	std::string BLUE = "\033[34m";
+	std::string NONE = "\033[39m";
+
+	std::cerr << "  ";
+	for (size_t i = 0; i < m.C; ++i) {
+		if (c[i] == status::red) std::cerr << RED  << 'R';
+		if (c[i] == status::blue)std::cerr << BLUE << 'B';
+		if (c[i] == status::cut) std::cerr << NONE << 'C';
+	}
+	std::cerr << std::endl;
+	for (size_t i = 0; i < m.R; ++i) {
+		if (r[i] == status::red) std::cerr << RED  << 'R';
+		if (r[i] == status::blue)std::cerr << BLUE << 'B';
+		if (r[i] == status::cut) std::cerr << NONE << 'C';
+		std::cerr << ' ';
+		for (size_t j = 0, k = 0; k < m.C; ++k) {
+			if (j < m.rows[i].size() && m.rows[i][j]->c == k) {
+				if (r[i] == status::red || c[k] == status::red)
+					std::cerr << RED << '#';
+				else
+				if (r[i] == status::blue || c[k] == status::blue)
+					std::cerr << BLUE << '#';
+				else    std::cerr << NONE << '#';
+				++j;
+			} else std::cerr << NONE << '.';
+		}
+		std::cerr << std::endl;
+	}
 }

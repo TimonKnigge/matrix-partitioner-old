@@ -19,11 +19,13 @@ int main(int argc, char *argv[]) {
 		
 		matrix m;
 		std::cin >> m;
-		std::cout << m << std::flush;
+		std::cerr << m.R << 'x' << m.C << " matrix has " << m.NZ << " nonzeros." << std::endl;
+		std::cerr << m << std::flush;
 		
 		branchandbound bb(m);
 		std::vector<status> r, c;
 		std::cerr << "Result: " << bb.partition(0.0, r, c) << std::endl;
+		print_colored(m, r, c);
 	}
 	
 	return 0;

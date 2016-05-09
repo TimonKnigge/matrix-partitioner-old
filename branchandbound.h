@@ -30,3 +30,5 @@ private:
 	ppmatrix partial_partition;
 	
 };
+
+void print_colored(const matrix &m, std::vector<status> &r, std::vector<status> &c);
