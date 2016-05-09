@@ -72,7 +72,7 @@ public:
 	
 	// Gives a lower bound on the volume of all partitions
 	// that can be extended from the current, partial partition.
-	int lower_bound() const;
+	int lower_bound();
 	
 	// Sets the epsilon for the partition size (1+epsilon) partitioning
 	void set_epsilon(double epsilon);
@@ -81,7 +81,16 @@ public:
 	friend std::istream &operator>>(std::istream &stream,       ppmatrix &ppm);
 	friend std::ostream &operator<<(std::ostream &stream, const ppmatrix &ppm);
 
-//private:
+private:
 	size_t cut = 0, implicitely_cut = 0;
+
+#ifdef PACKING_BOUND_1
+	// A lower bound on the size of the current partition,
+	// based on the number of free nonzeros in partially
+	// partitions rows/columns.
+	size_t packing_lower_bound = 0;
+	bool packing_lower_bound_valid = false;
+	void recalculate_packing_lower_bound();
+#endif
 };
 

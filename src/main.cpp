@@ -27,7 +27,8 @@ int main(int argc, char *argv[]) {
 		
 		branchandbound bb(m);
 		std::vector<status> r, c;
-		std::cerr << "Volume: " << bb.partition(0.0, r, c) << std::endl;
+		std::cerr << "Volume: " << bb.partition(0.03, r, c) << ", ";
+		std::cerr << bb.leaves << " leaves visited." << std::endl;
 		print_colored(m, r, c);
 	}
 	

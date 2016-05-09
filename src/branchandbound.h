@@ -19,6 +19,9 @@ struct operation {
 class branchandbound : public abstract_partitioner {
 	
 public:
+	// The number of leaves visited (for debug purposes).
+	size_t leaves = 0;
+	
 	branchandbound(const matrix &_m)
 		: abstract_partitioner(_m),
 		  partial_partition(_m) { }

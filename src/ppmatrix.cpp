@@ -33,8 +33,16 @@ bool ppmatrix::valid() const {
 		&& partition_size[COL] <= max_partition_size;
 }
 
-int ppmatrix::lower_bound() const {
-	return (int)(cut + implicitely_cut);
+int ppmatrix::lower_bound() {
+	int ret = (int)(cut + implicitely_cut);
+	
+#ifdef PACKING_BOUND_1
+	if (!packing_lower_bound_valid)
+		recalculate_packing_lower_bound();
+	ret += (int)packing_lower_bound;
+#endif
+	
+	return ret;
 }
 
 void ppmatrix::assign(row_or_col rc, status newstat) {
@@ -51,7 +59,7 @@ void ppmatrix::assign(row_or_col rc, status newstat) {
 		
 		total_free_in_partial[rc.rowcol][color] -= free;
 		--free_in_partial[rc.rowcol][color][free];
-		
+		packing_lower_bound_valid = false;
 	}
 #endif
 	
@@ -87,6 +95,7 @@ void ppmatrix::assign(row_or_col rc, status newstat) {
 					int icolor = static_cast<int>(from_partial(other));
 					total_free_in_partial[irc][icolor] -= free;
 					--free_in_partial[irc][icolor][free];
+					packing_lower_bound_valid = false;
 				}
 				--free;
 #endif
@@ -105,6 +114,7 @@ void ppmatrix::assign(row_or_col rc, status newstat) {
 				if (is_partial(other)) {
 					total_free_in_partial[irc][color] += free;
 					++free_in_partial[irc][color][free];
+					packing_lower_bound_valid = false;
 				}
 #endif
 			}
@@ -150,6 +160,7 @@ void ppmatrix::undo(row_or_col rc, status oldstat) {
 					int icolor = static_cast<int>(from_partial(other));
 					total_free_in_partial[irc][icolor] -= free;
 					--free_in_partial[irc][icolor][free];
+					packing_lower_bound_valid = false;
 				}
 				++free;
 #endif
@@ -169,6 +180,7 @@ void ppmatrix::undo(row_or_col rc, status oldstat) {
 					int icolor = static_cast<int>(from_partial(other));
 					total_free_in_partial[irc][icolor] += free;
 					++free_in_partial[irc][icolor][free];
+					packing_lower_bound_valid = false;
 				}
 #endif
 			}
@@ -187,9 +199,36 @@ void ppmatrix::undo(row_or_col rc, status oldstat) {
 		
 		total_free_in_partial[rc.rowcol][color] += free;
 		++free_in_partial[rc.rowcol][color][free];
+		packing_lower_bound_valid = false;
 	}
 #endif
 }
+
+#ifdef PACKING_BOUND_1
+void ppmatrix::recalculate_packing_lower_bound() {
+	
+	packing_lower_bound = 0;
+	for (size_t rc = 0; rc < 2; ++rc)
+		for (size_t c = 0; c < 2; ++c) {
+			size_t needed =(int)(max_partition_size - partition_size[c]);
+			size_t available = total_free_in_partial[rc][c];
+			if (needed >= available) continue;
+			
+			size_t rem = available - needed;
+			for (size_t C = m.Cmax; rem > 0 && C > 0; --C) {
+				size_t use = std::min(
+					free_in_partial[rc][c][C],
+					(rem + C - 1) / C);
+				packing_lower_bound += use;
+				if (use * C > rem)
+					rem = 0;
+				else	rem -= use * C;
+			}
+		}
+	
+	packing_lower_bound_valid = true;
+}
+#endif
 
 std::ostream &operator<<(std::ostream &stream, const ppmatrix &ppm) {
 	std::string RED  = "\033[31m";

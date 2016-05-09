@@ -2,6 +2,7 @@
 #include <vector>
 #include <stack>
 #include <algorithm>
+#include <random>
 
 #include "constants.h"
 #include "matrix.h"
@@ -25,12 +26,16 @@ void recurse(size_t &next_rc, const std::vector<row_or_col> &rows_columns, std::
 	
 	row_or_col rc = rows_columns[next_rc];
 	
+	status fc = status::red, sc = status::blue;
+	if (rand()&1)
+		std::swap(fc, sc);
+
 	if (ppm.can_assign(rc, status::cut))
 		recurse_single(rc, st, ppm, status::cut);
-	if (ppm.can_assign(rc, status::red))
-		recurse_single(rc, st, ppm, status::red);
-	if (ppm.can_assign(rc, status::blue))
-		recurse_single(rc, st, ppm, status::blue);
+	if (ppm.can_assign(rc, sc))
+		recurse_single(rc, st, ppm, sc);
+	if (ppm.can_assign(rc, fc))
+		recurse_single(rc, st, ppm, fc);
 	
 }
 
@@ -60,7 +65,7 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 		std::cerr << "Current values of epsilon and NZ do not allow a partition." << std::endl;
 		return -1;
 	}
-	
+
 	// Simulate recursion in the branch-and-bound tree
 	std::stack<operation> call_stack;
 	recurse(next_rc, rows_columns, call_stack, partial_partition);
@@ -82,6 +87,7 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 					recurse(next_rc, rows_columns, call_stack, partial_partition);
 				}
 			} else {
+				if (partial_partition.valid()) ++leaves;
 				
 				if (partial_partition.valid() && (partial_partition.lower_bound() < optimal_value || optimal_value == -1)) {
 					optimal_value = partial_partition.lower_bound();
