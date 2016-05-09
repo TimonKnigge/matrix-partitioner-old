@@ -3,6 +3,7 @@
 #include <stack>
 #include <algorithm>
 
+#include "constants.h"
 #include "matrix.h"
 #include "abstract_partitioner.h"
 #include "ppmatrix.h"

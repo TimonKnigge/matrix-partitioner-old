@@ -117,6 +117,9 @@ void matrix::add_entry(size_t r, size_t c) {
 	
 	rows[r].push_back(e);
 	cols[c].push_back(e); 
+	
+	Cmax = std::max(Cmax, rows[r].size());
+	Cmax = std::max(Cmax, cols[c].size());
 }
 
 void matrix::sort_adjacency_lists() {

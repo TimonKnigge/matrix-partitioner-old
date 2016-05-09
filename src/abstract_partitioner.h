@@ -26,6 +26,9 @@ inline status color_swap(status st) {
 	if (st == status::blue) return status::red;
 	return st;
 }
+inline bool is_partial(status st) {
+	return (st == status::partialred || st == status::partialblue);
+}
 
 class abstract_partitioner {
 

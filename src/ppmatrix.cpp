@@ -3,6 +3,7 @@
 #include <cmath>
 #include <algorithm>
 
+#include "constants.h"
 #include "matrix.h"
 #include "abstract_partitioner.h"
 #include "ppmatrix.h"
@@ -39,6 +40,20 @@ int ppmatrix::lower_bound() const {
 void ppmatrix::assign(row_or_col rc, status newstat) {
 	
 	status oldstat = stat[rc.rowcol][rc.index];
+
+#ifdef PACKING_BOUND_1
+	for (status s : {status::partialred, status::partialblue}) {
+		if (oldstat != s) continue;
+
+		int color = static_cast<int>(from_partial(s));
+		size_t free = m.adj[rc.rowcol][rc.index].size()
+			- color_count[rc.rowcol][color][rc.index];
+		
+		total_free_in_partial[rc.rowcol][color] -= free;
+		--free_in_partial[rc.rowcol][color][free];
+		
+	}
+#endif
 	
 	switch (newstat) {
 		case status::cut:
@@ -58,15 +73,44 @@ void ppmatrix::assign(row_or_col rc, status newstat) {
 			stat[rc.rowcol][rc.index] = newstat;
 			for (auto e : m.adj[rc.rowcol][rc.index]) {
 				
-				status &other = stat[invert_rowcol(rc.rowcol)][e->pos[invert_rowcol(rc.rowcol)]];
+				size_t irc = invert_rowcol(rc.rowcol);
+				size_t iindex = e->pos[irc];
+				
+				status &other = stat[irc][iindex];
 				if (other == newstat) continue;
+
+#ifdef PACKING_BOUND_1
+				size_t free = m.adj[irc][iindex].size()
+					- color_count[irc][0][iindex]
+					- color_count[irc][1][iindex];
+				if (is_partial(other)) {
+					int icolor = static_cast<int>(from_partial(other));
+					total_free_in_partial[irc][icolor] -= free;
+					--free_in_partial[irc][icolor][free];
+				}
+				--free;
+#endif
 				
 				++color_count[rc.rowcol][color][rc.index];
 				++color_count[invert_rowcol(rc.rowcol)][color][e->pos[invert_rowcol(rc.rowcol)]];
 				++partition_size[color];
 				
-				if (other == status::unassigned)
+#ifdef PACKING_BOUND_1
+				if (is_partial(other)) {
+					int icolor = static_cast<int>(from_partial(other));
+					if (icolor == color) {
+						total_free_in_partial[irc][icolor] += free;
+						++free_in_partial[irc][icolor][free];
+					}
+				}
+#endif
+				if (other == status::unassigned) {
 					other = to_partial(newstat);
+#ifdef PACKING_BOUND_1
+					total_free_in_partial[irc][color] += free;
+					++free_in_partial[irc][color][free];
+#endif
+				}
 				if (other == to_partial(color_swap(newstat))) {
 					other = status::implicitcut;
 					++implicitely_cut;
@@ -81,6 +125,7 @@ void ppmatrix::assign(row_or_col rc, status newstat) {
 void ppmatrix::undo(row_or_col rc, status oldstat) {
 	
 	status newstat = stat[rc.rowcol][rc.index];
+
 	switch (newstat) {
 		case status::cut:
 		{
@@ -99,8 +144,23 @@ void ppmatrix::undo(row_or_col rc, status oldstat) {
 			stat[rc.rowcol][rc.index] = oldstat;
 			for (auto e : m.adj[rc.rowcol][rc.index]) {
 				
-				status &other = stat[invert_rowcol(rc.rowcol)][e->pos[invert_rowcol(rc.rowcol)]];
+				size_t irc = invert_rowcol(rc.rowcol);
+				size_t iindex = e->pos[irc];
+				
+				status &other = stat[irc][iindex];
 				if (other == newstat) continue;
+
+#ifdef PACKING_BOUND_1
+				size_t free = m.adj[irc][iindex].size()
+					- color_count[irc][0][iindex]
+					- color_count[irc][1][iindex];
+				if (is_partial(other)) {
+					int icolor = static_cast<int>(from_partial(other));
+					total_free_in_partial[irc][icolor] -= free;
+					--free_in_partial[irc][icolor][free];
+				}
+				++free;
+#endif
 				
 				--color_count[rc.rowcol][color][rc.index];
 				--color_count[invert_rowcol(rc.rowcol)][color][e->pos[invert_rowcol(rc.rowcol)]];
@@ -112,11 +172,31 @@ void ppmatrix::undo(row_or_col rc, status oldstat) {
 					other = to_partial(color_swap(newstat));
 					--implicitely_cut;
 				}
+#ifdef PACKING_BOUND_1
+				if (is_partial(other)) {
+					int icolor = static_cast<int>(from_partial(other));
+					total_free_in_partial[irc][icolor] += free;
+					++free_in_partial[irc][icolor][free];
+				}
+#endif
 			}
 			break;
 		}
 		default:break;
 	}
+
+#ifdef PACKING_BOUND_1
+	for (status s : {status::partialred, status::partialblue}) {
+		if (oldstat != s) continue;
+
+		int color = static_cast<int>(from_partial(s));
+		size_t free = m.adj[rc.rowcol][rc.index].size()
+			- color_count[rc.rowcol][color][rc.index];
+		
+		total_free_in_partial[rc.rowcol][color] += free;
+		++free_in_partial[rc.rowcol][color][free];
+	}
+#endif
 }
 
 std::ostream &operator<<(std::ostream &stream, const ppmatrix &ppm) {

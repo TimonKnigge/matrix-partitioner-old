@@ -8,6 +8,8 @@
 
 #include <vector>
 
+#include "constants.h"
+
 
 class ppmatrix {
 	
@@ -26,6 +28,17 @@ public:
 	// Count the number of colors in each row/column:
 	// color_count[ROW/COL][red/blue][index]
 	std::vector<size_t> color_count[2][2];
+
+#ifdef PACKING_BOUND_1
+	// free_in_partial[ROW/COL][red/blue][cnt] for
+	// 0<=cnt<=m.Cmax gives the amount of partially
+	// colored rows/columns having cnt free nonzeros.
+	std::vector<size_t> free_in_partial[2][2];
+	// total_free_in_partial[ROW/COL][red/blue] gives
+	// the number of free nonzeros in rows/columns
+	// partially assigned to the given column
+	size_t total_free_in_partial[2][2];
+#endif
 	
 	ppmatrix(const matrix &_m)
 		: m(_m) {
@@ -34,6 +47,12 @@ public:
 		for (size_t c = 0; c < 2; ++c) {
 			color_count[ROW][c].assign(m.R, 0);
 			color_count[COL][c].assign(m.C, 0);
+#ifdef PACKING_BOUND_1
+			for (size_t rc = 0; rc < 2; ++rc) {
+				free_in_partial[rc][c].assign(m.Cmax+1, 0);
+				total_free_in_partial[rc][c] = 0;
+			}
+#endif
 		}
 	}
 	

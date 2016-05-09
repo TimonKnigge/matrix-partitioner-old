@@ -36,9 +36,14 @@ public:
 	std::vector< std::vector< std::shared_ptr<entry> > > 
 		adj[2], &rows = adj[0], &cols = adj[1];
 	
-	// The number of rows, columns and non-zeros in the matrix
-	size_t R, C;
-	unsigned int NZ = 0;
+	// The number of rows of the matrix.
+	size_t R; 
+	// The number of columns of the matrix.
+	size_t C;
+	// The number of non zeros of the matrix.
+	size_t NZ = 0;
+	// The largest number of non zeros in a single row or column.
+	size_t Cmax = 0;
 
 private:
 	// Add a nonzero entry in position (r, c) with 0<=r<R and
