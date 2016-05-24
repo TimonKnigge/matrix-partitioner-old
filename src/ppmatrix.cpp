@@ -10,7 +10,7 @@
 
 
 void ppmatrix::set_epsilon(double epsilon) {
-	max_partition_size = (size_t)floor((1.0 + epsilon) * m.NZ / 2.0);
+	max_partition_size = (size_t)floor((1.0 + epsilon) * ceil(m.NZ / 2.0));
 }
 
 bool ppmatrix::can_assign(row_or_col rc, status newstat) const {
@@ -210,11 +210,11 @@ void ppmatrix::recalculate_packing_lower_bound() {
 	packing_lower_bound = 0;
 	for (size_t rc = 0; rc < 2; ++rc)
 		for (size_t c = 0; c < 2; ++c) {
-			size_t needed =(int)(max_partition_size - partition_size[c]);
+			size_t allowed =(int)(max_partition_size - partition_size[c]);
 			size_t available = total_free_in_partial[rc][c];
-			if (needed >= available) continue;
+			if (allowed >= available) continue;
 			
-			size_t rem = available - needed;
+			size_t rem = available - allowed;
 			for (size_t C = m.Cmax; rem > 0 && C > 0; --C) {
 				size_t use = std::min(
 					free_in_partial[rc][c][C],
@@ -245,7 +245,7 @@ std::ostream &operator<<(std::ostream &stream, const ppmatrix &ppm) {
 			stream << NONE << "C";
 		else	stream << NONE << static_cast<int>(ppm.stat[COL][c]);
 	}
-	stream<< std::endl;
+	stream << std::endl;
 	for (size_t r = 0; r < ppm.m.R; ++r) {
 		
 		if (ppm.stat[ROW][r] == status::red)
