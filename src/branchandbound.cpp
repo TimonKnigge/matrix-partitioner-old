@@ -51,11 +51,11 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 		rows_columns.push_back({COL, c});
 	sort(rows_columns.begin(), rows_columns.end(),
 		[this](const row_or_col &l, const row_or_col &r) {
-			return m.adj[l.rowcol][l.index] > m.adj[r.rowcol][r.index];	
+			return m.adj[l.rowcol][l.index].size() > m.adj[r.rowcol][r.index].size();	
 	});
 	
 	// Prepare to maintain an optimal solution
-	int optimal_value = -1;
+	int optimal_value = std::min(m.R, m.C) + 2;
 	row.assign(m.R, status::unassigned);
 	col.assign(m.C, status::unassigned);
 	
@@ -70,7 +70,7 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 	std::stack<operation> call_stack;
 	recurse(next_rc, rows_columns, call_stack, partial_partition);
 	while (call_stack.size() > 0) {
-		
+
 		if (call_stack.top().type == operation_type::descend) {
 			
 			partial_partition.assign(
@@ -83,14 +83,15 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 
 			if (next_rc < rows_columns.size()) {
 
-				if (partial_partition.valid() && (partial_partition.lower_bound() < optimal_value || optimal_value == -1)) {
+				if (partial_partition.valid() && (partial_partition.lower_bound() < optimal_value)) {
 					recurse(next_rc, rows_columns, call_stack, partial_partition);
 				}
 			} else {
 				if (partial_partition.valid()) ++leaves;
-				
-				if (partial_partition.valid() && (partial_partition.lower_bound() < optimal_value || optimal_value == -1)) {
+
+				if (partial_partition.valid() && (partial_partition.lower_bound() < optimal_value)) {
 					optimal_value = partial_partition.lower_bound();
+					
 					std::copy(
 						partial_partition.stat[ROW].begin(),
 						partial_partition.stat[ROW].end(),
