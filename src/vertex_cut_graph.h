@@ -35,10 +35,10 @@ public:
 	// be taken into account for finding the maximal vertex cut).
 	std::vector<bool> active;
 	
-	// The current set of source/sink vertices
-	std::set<size_t> source, sink;
+	// The current set of source/sink vertices (a tuple (vertex id, flow))
+	std::set<std::pair<size_t, size_t>> source, sink;
 	
-	flow_graph(size_t N)
+	vertex_cut_graph(size_t N)
 		: N(N), V(2 * N), E(2 * N, std::vector<vc_edge>()),
 		  active(2 * N, true) {
 		for (size_t i = 0; i < N; ++i) {
@@ -64,7 +64,6 @@ public:
 	void remove_sink(size_t u);
 
 private:
-	void update_flow(set<size_t> &sources, set<size_t> &sinks);
 	
 	static size_t  invertex(size_t u) { return 2 * u;     }
 	static size_t outvertex(size_t u) { return 2 * u + 1; }

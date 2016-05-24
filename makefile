@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-std=gnu++11 -Wall -Wfatal-errors -O2 -c
 LFLAGS=-std=gnu++11 -Wall -Wfatal-errors -O2
 EXEC=a.out
-RAWSOURCES=main.cpp matrix.cpp resettable_array.cpp ppmatrix.cpp branchandbound.cpp
+RAWSOURCES=main.cpp matrix.cpp resettable_array.cpp ppmatrix.cpp branchandbound.cpp vertex_cut_graph.cpp
 SOURCES=$(addprefix src/,$(RAWSOURCES))
 OBJECTS=$(SOURCES:.cpp=.o)
 
