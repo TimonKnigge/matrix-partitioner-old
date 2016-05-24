@@ -78,8 +78,10 @@ std::istream &operator>>(std::istream &stream, matrix &m) {
 			}
 			
 			m.add_entry(r, c);
-			if (symmetric && r != c)
+			if (symmetric && r != c) {
 				m.add_entry(c, r);
+				m.NZ++;
+			}
 		}
 		
 	} else {
