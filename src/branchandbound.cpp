@@ -29,11 +29,13 @@ void recurse(size_t &next_rc, const std::vector<row_or_col> &rows_columns, std::
 	status fc = status::red, sc = status::blue;
 	if (rand()&1)
 		std::swap(fc, sc);
-
-	if (ppm.can_assign(rc, status::cut))
-		recurse_single(rc, st, ppm, status::cut);
-	if (ppm.can_assign(rc, sc))
-		recurse_single(rc, st, ppm, sc);
+	
+	if (ppm.m.adj[rc.rowcol][rc.index].size() > 0) {
+		if (ppm.can_assign(rc, status::cut))
+			recurse_single(rc, st, ppm, status::cut);
+		if (ppm.can_assign(rc, sc))
+			recurse_single(rc, st, ppm, sc);
+	}
 	if (ppm.can_assign(rc, fc))
 		recurse_single(rc, st, ppm, fc);
 	
