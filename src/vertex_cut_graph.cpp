@@ -17,6 +17,9 @@ size_t vertex_cut_graph::maximal_vertex_cut() {
 }
 
 void vertex_cut_graph::add_source(size_t u) {
+	active[invertex(u)] = active[outvertex(u)] = true;
+	E[invertex(u)][0].cap = 1;
+	
 	u = outvertex(u);
 	
 	std::set<std::pair<size_t, size_t>> _so;
@@ -51,6 +54,9 @@ void vertex_cut_graph::remove_source(size_t u) {
 }
 
 void vertex_cut_graph::add_sink(size_t u) {
+	active[invertex(u)] = active[outvertex(u)] = true;
+	E[invertex(u)][0].cap = 1;
+	
 	u = invertex(u);
 	
 	std::set<std::pair<size_t, size_t>> _si;
