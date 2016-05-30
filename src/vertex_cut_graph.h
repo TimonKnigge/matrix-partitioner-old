@@ -11,6 +11,8 @@
 #include <vector>
 #include <set>
 
+#include "resettable_array.h"
+
 // A directed edge in the flow graph.
 struct vc_edge{
 	const size_t v;		// Index of the endpoint of this edge.
@@ -36,11 +38,12 @@ public:
 	std::vector<bool> active;
 	
 	// The current set of source/sink vertices (a tuple (vertex id, flow))
-	std::set<std::pair<size_t, size_t>> source, sink;
+	std::set<std::pair<size_t, size_t>> sources, sinks;
 	
 	vertex_cut_graph(size_t N)
 		: N(N), V(2 * N), E(2 * N, std::vector<vc_edge>()),
-		  active(2 * N, true) {
+		  active(2 * N, true),
+		  parent(2 * N, -1), parent_edge(2 * N, 0) {
 		for (size_t i = 0; i < N; ++i) {
 			E[ invertex(i)].push_back(vc_edge(outvertex(i), 0, 1));
 			E[outvertex(i)].push_back(vc_edge( invertex(i), 0, 0));
@@ -64,6 +67,9 @@ public:
 	void remove_sink(size_t u);
 
 private:
+	resettable_array<int> parent, parent_edge;
+	
+	size_t find_flow(std::set<std::pair<size_t, size_t>> &_sources, std::set<std::pair<size_t, size_t>> &_sinks);
 	
 	static size_t  invertex(size_t u) { return 2 * u;     }
 	static size_t outvertex(size_t u) { return 2 * u + 1; }

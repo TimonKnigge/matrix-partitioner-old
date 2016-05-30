@@ -57,7 +57,15 @@ public:
 				total_free_in_partial[rc][c] = 0;
 			}
 #endif
+
 		}
+#ifdef FLOW_BOUND_1
+		for (size_t r = 0; r < m.R; ++r)
+			for (auto &&e : m.rows[r]) {
+				G.add_edge(r, m.R + e->c, 1);
+				G.add_edge(m.R + e->c, r, 1);
+			}
+#endif
 	}
 	
 	// Decides whether the given row/colulmn can get the given
