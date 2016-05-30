@@ -42,10 +42,15 @@ public:
 
 #ifdef FLOW_BOUND_1
 	vertex_cut_graph G;
+	size_t vertex_id(size_t rowcol, size_t index);
 #endif
 	
 	ppmatrix(const matrix &_m)
-		: m(_m), G(m.R + m.C) {
+		: m(_m)
+#ifdef FLOW_BOUND_1
+		, G(m.R + m.C) 
+#endif
+		{
 		stat[ROW].assign(m.R, status::unassigned);
 		stat[COL].assign(m.C, status::unassigned);
 		for (size_t c = 0; c < 2; ++c) {
@@ -93,7 +98,7 @@ public:
 	friend std::istream &operator>>(std::istream &stream,       ppmatrix &ppm);
 	friend std::ostream &operator<<(std::ostream &stream, const ppmatrix &ppm);
 
-private:
+//private:
 	size_t cut = 0, implicitely_cut = 0;
 
 #ifdef PACKING_BOUND_1

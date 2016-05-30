@@ -2,6 +2,7 @@
 #include <set>
 #include <algorithm>
 #include <queue>
+#include <iostream>
 
 #include "resettable_array.cpp" // This .cpp include is necessary because of template problems (see `linking issue' in http://www.codeproject.com/Articles/48575/How-to-define-a-template-class-in-a-h-file-and-imp)
 #include "vertex_cut_graph.h"
@@ -54,6 +55,7 @@ void vertex_cut_graph::remove_source(size_t u) {
 }
 
 void vertex_cut_graph::add_sink(size_t u) {
+	
 	active[invertex(u)] = active[outvertex(u)] = true;
 	E[invertex(u)][0].cap = 1;
 	
@@ -73,6 +75,7 @@ void vertex_cut_graph::add_sink(size_t u) {
 }
 
 void vertex_cut_graph::remove_sink(size_t u) {
+	
 	u = invertex(u);
 	
 	auto it = sinks.lower_bound({u, 0});
@@ -88,6 +91,7 @@ void vertex_cut_graph::remove_sink(size_t u) {
 	
 	// If we couldn't rewire all flow, we'll have to move some back
 	while (excess > 0) find_flow(_si, sources, -1), --excess;
+	
 }
 
 bool vertex_cut_graph::is_active(size_t u) {
@@ -120,7 +124,7 @@ void vertex_cut_graph::set_activity(size_t u, bool activity) {
 			active[inv] = active[outv] = false;
 			return;
 		}
-		
+
 		// We'll have to remove this path. Push back
 		// from inv to some source and from some sink to outv
 		find_flow(_so, sources, -1);
@@ -146,8 +150,10 @@ size_t vertex_cut_graph::find_flow(
 	parent_edge.reset_all();
 	std::queue<size_t> q;
 	for (std::pair<size_t, size_t> _source : _sources) {
-		q.push(_source.first);
-		parent.set(_source.first, -2);
+		if (_source.second > 0 || coeff > 0) {
+			q.push(_source.first);
+			parent.set(_source.first, -2);
+		}
 		// We'll use -2 to denote 'no parent, this is a source'
 		// (as opposed to -1 which denotes 'no parent yet')
 	}
@@ -158,7 +164,7 @@ size_t vertex_cut_graph::find_flow(
 		q.pop();
 		
 		auto it = _sinks.lower_bound({u, 0});
-		if (it != _sinks.end() && it->first == u) {
+		if (it != _sinks.end() && it->first == u && (coeff > 0 || it->second > 0)) {
 			_sink = int(u);
 			break;
 		}

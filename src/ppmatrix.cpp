@@ -14,6 +14,12 @@ void ppmatrix::set_epsilon(double epsilon) {
 	max_partition_size = (size_t)floor((1.0 + epsilon) * ceil(m.NZ / 2.0));
 }
 
+#ifdef FLOW_BOUND_1
+size_t ppmatrix::vertex_id(size_t rowcol, size_t index) {
+	return (rowcol == 1 ? m.R : 0) + index;
+}
+#endif
+
 bool ppmatrix::can_assign(row_or_col rc, status newstat) const {
 	
 	status curstat = stat[rc.rowcol][rc.index];
@@ -76,6 +82,9 @@ void ppmatrix::assign(row_or_col rc, status newstat) {
 				--implicitely_cut;
 			stat[rc.rowcol][rc.index] = newstat;
 			++cut;
+#ifdef FLOW_BOUND_1
+			G.set_activity(vertex_id(rc.rowcol, rc.index), false);
+#endif
 			break;
 		}
 		case status::red:
@@ -115,6 +124,9 @@ void ppmatrix::assign(row_or_col rc, status newstat) {
 				if (other == to_partial(color_swap(newstat))) {
 					other = status::implicitcut;
 					++implicitely_cut;
+#ifdef FLOW_BOUND_1
+					G.set_activity(vertex_id(irc, iindex), false);
+#endif
 				}
 #ifdef PACKING_BOUND_1
 				if (is_partial(other)) {
@@ -124,6 +136,11 @@ void ppmatrix::assign(row_or_col rc, status newstat) {
 				}
 #endif
 			}
+#ifdef FLOW_BOUND_1
+			if (newstat == status::red)
+				G.add_source(vertex_id(rc.rowcol, rc.index));
+			else	G.add_sink(vertex_id(rc.rowcol, rc.index));
+#endif
 			break;
 		}
 		default:break;
@@ -141,6 +158,9 @@ void ppmatrix::undo(row_or_col rc, status oldstat) {
 				++implicitely_cut;
 			stat[rc.rowcol][rc.index] = oldstat;
 			--cut;
+#ifdef FLOW_BOUND_1
+			G.set_activity(vertex_id(rc.rowcol, rc.index), true);
+#endif
 			break;
 		}
 		case status::red:
@@ -150,6 +170,13 @@ void ppmatrix::undo(row_or_col rc, status oldstat) {
 			if (oldstat == status::implicitcut)
 				++implicitely_cut;
 			stat[rc.rowcol][rc.index] = oldstat;
+#ifdef FLOW_BOUND_1
+			if (newstat == status::red)
+				G.remove_source(vertex_id(rc.rowcol, rc.index));
+			else	G.remove_sink(vertex_id(rc.rowcol, rc.index));
+			if (oldstat == status::implicitcut)
+				G.set_activity(vertex_id(rc.rowcol, rc.index), false);
+#endif
 			for (auto e : m.adj[rc.rowcol][rc.index]) {
 				
 				size_t irc = invert_rowcol(rc.rowcol);
@@ -180,6 +207,9 @@ void ppmatrix::undo(row_or_col rc, status oldstat) {
 				if (other == status::implicitcut && color_count[invert_rowcol(rc.rowcol)][color][e->pos[invert_rowcol(rc.rowcol)]] == 0) {
 					other = to_partial(color_swap(newstat));
 					--implicitely_cut;
+#ifdef FLOW_BOUND_1
+					G.set_activity(vertex_id(irc, iindex), true);
+#endif
 				}
 #ifdef PACKING_BOUND_1
 				if (is_partial(other)) {
