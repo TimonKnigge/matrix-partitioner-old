@@ -16,9 +16,73 @@ size_t vertex_cut_graph::maximal_vertex_cut() {
 	return flow;
 }
 
-//void add_source(size_t u) {
-//	
-//}
+void vertex_cut_graph::add_source(size_t u) {
+	u = outvertex(u);
+	
+	std::set<std::pair<size_t, size_t>> _so;
+	_so.insert({u, 0});
+	
+	size_t inc = 0;
+	while (true)
+		if (find_flow(_so, sinks) == 0)
+			break;
+		else	++inc;
+	
+	flow += inc;
+	sources.insert({u, inc});
+}
+
+void vertex_cut_graph::remove_source(size_t u) {
+	u = outvertex(u);
+	
+	auto it = sources.lower_bound({u, 0});
+	std::set<std::pair<size_t, size_t>> _so;
+	_so.insert(*it);
+	size_t excess = it->second;
+	flow -= excess;
+	sources.erase(it);
+	
+	// There is <excess> outgoing flow at u, try to get it
+	// from different sources
+	while (excess > 0 && find_flow(sources, _so) > 0) --excess, ++flow;
+	
+	// If we couldn't rewire all flow, we'll have to move some back
+	while (excess > 0) find_flow(sinks, _so, -1), --excess;
+}
+
+void vertex_cut_graph::add_sink(size_t u) {
+	u = invertex(u);
+	
+	std::set<std::pair<size_t, size_t>> _si;
+	_si.insert({u, 0});
+	
+	size_t inc = 0;
+	while (true)
+		if (find_flow(sources, _si) == 0)
+			break;
+		else	++inc;
+	
+	flow += inc;
+	sinks.insert({u, inc});
+}
+
+void vertex_cut_graph::remove_sink(size_t u) {
+	u = invertex(u);
+	
+	auto it = sinks.lower_bound({u, 0});
+	std::set<std::pair<size_t, size_t>> _si;
+	_si.insert(*it);
+	size_t excess = it->second;
+	flow -= excess;
+	sinks.erase(it);
+	
+	// There is <excess> incoming flow at u, try to get it
+	// to different sinks
+	while (excess > 0 && find_flow(_si, sinks) > 0) --excess, ++flow;
+	
+	// If we couldn't rewire all flow, we'll have to move some back
+	while (excess > 0) find_flow(_si, sources, -1), --excess;
+}
 
 bool vertex_cut_graph::is_active(size_t u) {
 	return active[u];
@@ -106,15 +170,18 @@ size_t vertex_cut_graph::find_flow(
 	}
 	
 	if (_sink == -1) return 0;
-	
+
 	int u = _sink, _source = _sink;
 	while (u != -2) {
 		int p = parent.get(u), pi = parent_edge.get(u);
+		if (p == -2) {
+			_source = u;
+			break;
+		}
 		
 		E[p][pi].flow++;
 		E[u][E[p][pi].rev].flow--;
 		
-		_source = u;
 		u = p;
 	}
 	
