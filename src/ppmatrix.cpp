@@ -5,6 +5,7 @@
 
 #include "constants.h"
 #include "matrix.h"
+#include "vertex_cut_graph.h"
 #include "abstract_partitioner.h"
 #include "ppmatrix.h"
 
@@ -36,13 +37,18 @@ bool ppmatrix::valid() const {
 int ppmatrix::lower_bound() {
 	int ret = (int)(cut + implicitely_cut);
 	
+	int add = 0;
 #ifdef PACKING_BOUND_1
 	if (!packing_lower_bound_valid)
 		recalculate_packing_lower_bound();
-	ret += (int)packing_lower_bound;
+	add = (int)packing_lower_bound;
+#endif
+#ifdef FLOW_BOUND_1
+	// Flow bound 1 and packing bound 1 may not be combined
+	add = std::max(add, (int)G.maximal_vertex_cut());
 #endif
 	
-	return ret;
+	return ret + add;
 }
 
 void ppmatrix::assign(row_or_col rc, status newstat) {

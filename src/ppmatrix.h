@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "constants.h"
-
+#include "vertex_cut_graph.h"
 
 class ppmatrix {
 	
@@ -39,9 +39,13 @@ public:
 	// partially assigned to the given column
 	size_t total_free_in_partial[2][2];
 #endif
+
+#ifdef FLOW_BOUND_1
+	vertex_cut_graph G;
+#endif
 	
 	ppmatrix(const matrix &_m)
-		: m(_m) {
+		: m(_m), G(m.R + m.C) {
 		stat[ROW].assign(m.R, status::unassigned);
 		stat[COL].assign(m.C, status::unassigned);
 		for (size_t c = 0; c < 2; ++c) {
