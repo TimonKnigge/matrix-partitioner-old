@@ -28,7 +28,8 @@ public:
 	
 	// The number of vertices in the flow graph and the current
 	// maximal flow
-	const size_t N, V, flow = 0;
+	const size_t N, V;
+	int flow = 0;
 	
 	// The edgelist of the graph
 	std::vector<std::vector<vc_edge>> E;
@@ -69,7 +70,7 @@ public:
 private:
 	resettable_array<int> parent, parent_edge;
 	
-	size_t find_flow(std::set<std::pair<size_t, size_t>> &_sources, std::set<std::pair<size_t, size_t>> &_sinks);
+	size_t find_flow(std::set<std::pair<size_t, size_t>> &_sources, std::set<std::pair<size_t, size_t>> &_sinks, int coeff = 1);
 	
 	static size_t  invertex(size_t u) { return 2 * u;     }
 	static size_t outvertex(size_t u) { return 2 * u + 1; }

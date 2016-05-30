@@ -16,20 +16,61 @@ size_t vertex_cut_graph::maximal_vertex_cut() {
 	return flow;
 }
 
+//void add_source(size_t u) {
+//	
+//}
+
 bool vertex_cut_graph::is_active(size_t u) {
 	return active[u];
 }
 
 void vertex_cut_graph::set_activity(size_t u, bool activity) {
-	if (active[u] == activity) return;
-	if (active[u]) {
+	size_t inv = invertex(u), outv = outvertex(u);
+	if (active[inv] == activity) return;
+	
+	if (active[inv]) {
 		// u is set to inactive
+		
+		// Is there flow passing through u? The first outgoing
+		// edge of inv goes to outv.
+		if (E[inv][0].flow == 0) {
+			active[inv] = active[outv] = false;
+			return;
+		}
+		
+		// Reset the flow and capacity in inv
+		E[inv][0].flow = E[inv][0].cap = 0;
+		E[outv][0].flow = E[outv][0].cap = 0;
+		
+		// Try to push flow from inv to outv over some other path
+		std::set<std::pair<size_t, size_t>> _so, _si;
+		_so.insert({inv, 1});
+		_si.insert({outv, 1});
+		if (find_flow(_so, _si) == 1) {
+			active[inv] = active[outv] = false;
+			return;
+		}
+		
+		// We'll have to remove this path. Push back
+		// from inv to some source and from some sink to outv
+		find_flow(_so, sources, -1);
+		find_flow(sinks, _si, -1);
+		--flow;
+		active[inv] = active[outv] = false;
+	} else {
+		// u is set to active
+		// Fix capacities and status
+		active[inv] = active[outv] = true;
+		E[inv][0].cap = 1;
+		
+		flow += find_flow(sources, sinks);
 	}
 }
 
 size_t vertex_cut_graph::find_flow(
 	std::set<std::pair<size_t, size_t>> &_sources,
-	std::set<std::pair<size_t, size_t>> &_sinks) {
+	std::set<std::pair<size_t, size_t>> &_sinks,
+	int coeff) {
 	
 	parent.reset_all();
 	parent_edge.reset_all();
@@ -66,14 +107,25 @@ size_t vertex_cut_graph::find_flow(
 	
 	if (_sink == -1) return 0;
 	
-	while (_sink != -2) {
-		int p = parent.get(_sink), pi = parent_edge.get(_sink);
+	int u = _sink, _source = _sink;
+	while (u != -2) {
+		int p = parent.get(u), pi = parent_edge.get(u);
 		
 		E[p][pi].flow++;
-		E[_sink][E[p][pi].rev].flow--;
+		E[u][E[p][pi].rev].flow--;
 		
-		_sink = p;
+		_source = u;
+		u = p;
 	}
+	
+	auto it = _sources.lower_bound({_source, 0});
+	std::pair<size_t, size_t> new_source = {_source, it->second + coeff};
+	_sources.erase(it);
+	_sources.insert(new_source);
+	it = _sinks.lower_bound({_sink, 0});
+	std::pair<size_t, size_t> new_sink = {_sink, it->second + coeff};
+	_sinks.erase(it);
+	_sinks.insert(new_sink);
 	
 	return 1;
 }
