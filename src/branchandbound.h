@@ -29,7 +29,6 @@ public:
 	// see abstract_partitioner.h
 	int partition(double epsilon, std::vector<status> &row, std::vector<status> &col);
 	
-private:
 	ppmatrix partial_partition;
 	
 };
