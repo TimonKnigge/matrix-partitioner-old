@@ -6,29 +6,27 @@
 
 #pragma once
 
-#include <array>
+#include <vector>
 
-// Type T, size N
-template<class T, size_t N>
+// Type T
+template<class T>
 class resettable_array {
 	
 public:
 	// Default value to be returned
 	T def;
 	// Current value of each position
-	std::array<T, N> value;
+	std::vector<T> value;
 	
 	// Current 'time'
 	size_t current_time = 0;
 	// Time of last set for each value
-	std::array<size_t, N> timestamp;
+	std::vector<size_t> timestamp;
 	
-	resettable_array(T init) {
+	resettable_array(size_t N, T init) {
+		value.assign(N, init);
+		timestamp.assign(N, 0);
 		def = init;
-		for (size_t i = 0; i < N; ++i) {
-			value[i] = def;
-			timestamp[i] = 0;
-		}
 	}
 	
 	T get(size_t i); // does not do bounds checking!
