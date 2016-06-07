@@ -159,7 +159,8 @@ void ppmatrix::undo(row_or_col rc, status oldstat) {
 			stat[rc.rowcol][rc.index] = oldstat;
 			--cut;
 #ifdef FLOW_BOUND_1
-			G.set_activity(vertex_id(rc.rowcol, rc.index), true);
+			if (oldstat != status::implicitcut)
+				G.set_activity(vertex_id(rc.rowcol, rc.index), true);
 #endif
 			break;
 		}
@@ -174,8 +175,6 @@ void ppmatrix::undo(row_or_col rc, status oldstat) {
 			if (newstat == status::red)
 				G.remove_source(vertex_id(rc.rowcol, rc.index));
 			else	G.remove_sink(vertex_id(rc.rowcol, rc.index));
-			if (oldstat == status::implicitcut)
-				G.set_activity(vertex_id(rc.rowcol, rc.index), false);
 #endif
 			for (auto e : m.adj[rc.rowcol][rc.index]) {
 				

@@ -71,6 +71,7 @@ private:
 	resettable_array<int> parent, parent_edge;
 	
 	size_t find_flow(std::set<std::pair<size_t, size_t>> &_sources, std::set<std::pair<size_t, size_t>> &_sinks, int coeff = 1);
+	size_t find_reverse_flow(std::set<std::pair<size_t, size_t>> &_sources, std::set<std::pair<size_t, size_t>> &_sinks, int coeff = 1);
 	
 	static size_t  invertex(size_t u) { return 2 * u;     }
 	static size_t outvertex(size_t u) { return 2 * u + 1; }

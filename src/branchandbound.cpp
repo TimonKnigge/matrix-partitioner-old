@@ -3,6 +3,7 @@
 #include <stack>
 #include <algorithm>
 #include <random>
+#include <limits>
 
 #include "constants.h"
 #include "matrix.h"
@@ -22,23 +23,46 @@ void recurse_single(row_or_col rc, std::stack<operation> &st, const ppmatrix &pp
 		stat});
 	
 }
-void recurse(size_t &next_rc, const std::vector<row_or_col> &rows_columns, std::stack<operation> &st, const ppmatrix &ppm) {
+void recurse(size_t &next_rc, const std::vector<row_or_col> &rows_columns, std::stack<operation> &st, ppmatrix &ppm) {
 	
 	row_or_col rc = rows_columns[next_rc];
 	
-	status fc = status::red, sc = status::blue;
-	if (rand()&1)
-		std::swap(fc, sc);
-	
-	if (ppm.m.adj[rc.rowcol][rc.index].size() > 0) {
-		if (ppm.can_assign(rc, status::cut))
-			recurse_single(rc, st, ppm, status::cut);
-		if (ppm.can_assign(rc, sc))
-			recurse_single(rc, st, ppm, sc);
+	if (ppm.m.adj[rc.rowcol][rc.index].size() == 0) {
+		recurse_single(rc, st, ppm, status::red);
 	}
-	if (ppm.can_assign(rc, fc))
-		recurse_single(rc, st, ppm, fc);
 	
+	std::pair<status, int> br[3];
+	br[0].first = status::red;
+	br[1].first = status::blue;
+	br[2].first = status::cut;
+	
+	status cur = ppm.stat[rc.rowcol][rc.index];
+	for (size_t i = 0; i < 3; ++i) {
+		if (!ppm.can_assign(rc, br[i].first))
+			br[i].second = std::numeric_limits<int>::max();
+		else {
+			ppm.assign(rc, br[i].first);
+			if (ppm.valid())
+				br[i].second = ppm.lower_bound();
+			else	br[i].second = std::numeric_limits<int>::max();
+			ppm.undo(rc, cur);
+		}
+	}
+	
+	// (randomized) sorting network for 3 values
+	if (br[0].second > br[1].second) swap(br[0], br[1]);
+	if (br[0].second == br[1].second && (rand()&1)) swap(br[0], br[1]);
+
+	if (br[1].second > br[2].second) swap(br[1], br[2]);
+	if (br[1].second == br[2].second && (rand()&1)) swap(br[1], br[2]);
+
+	if (br[0].second > br[1].second) swap(br[0], br[1]);
+	if (br[0].second == br[1].second && (rand()&1)) swap(br[0], br[1]);
+	
+	for (size_t i = 0; i < 3; ++i) {
+		if (br[2-i].second < std::numeric_limits<int>::max())
+			recurse_single(rc, st, ppm, br[2-i].first);
+	}
 }
 
 int branchandbound::partition(double epsilon, std::vector<status> &row, std::vector<status> &col) {
@@ -71,8 +95,10 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 	// Simulate recursion in the branch-and-bound tree
 	std::stack<operation> call_stack;
 	recurse(next_rc, rows_columns, call_stack, partial_partition);
+	int a = 0;
 	while (call_stack.size() > 0) {
-
+		a++;
+//		std::cerr << a << '\t' << partial_partition.lower_bound() << '\t' << partial_partition.lower_bound(true) << std::endl;
 		if (call_stack.top().type == operation_type::descend) {
 			
 			partial_partition.assign(
@@ -93,6 +119,7 @@ int branchandbound::partition(double epsilon, std::vector<status> &row, std::vec
 
 				if (partial_partition.valid() && (partial_partition.lower_bound() < optimal_value)) {
 					optimal_value = partial_partition.lower_bound();
+				std::cerr << optimal_value << ' ' << a << ' ' << std::endl;
 					
 					std::copy(
 						partial_partition.stat[ROW].begin(),

@@ -149,7 +149,7 @@ size_t vertex_cut_graph::find_flow(
 	parent.reset_all();
 	parent_edge.reset_all();
 	std::queue<size_t> q;
-	for (std::pair<size_t, size_t> _source : _sources) {
+	for (std::pair<size_t, size_t> const &_source : _sources) {
 		if (_source.second > 0 || coeff > 0) {
 			q.push(_source.first);
 			parent.set(_source.first, -2);
@@ -193,6 +193,75 @@ size_t vertex_cut_graph::find_flow(
 		
 		E[p][pi].flow++;
 		E[u][E[p][pi].rev].flow--;
+		
+		u = p;
+	}
+	
+	auto it = _sources.lower_bound({_source, 0});
+	std::pair<size_t, size_t> new_source = {_source, it->second + coeff};
+	_sources.erase(it);
+	_sources.insert(new_source);
+	it = _sinks.lower_bound({_sink, 0});
+	std::pair<size_t, size_t> new_sink = {_sink, it->second + coeff};
+	_sinks.erase(it);
+	_sinks.insert(new_sink);
+	
+	return 1;
+}
+
+size_t vertex_cut_graph::find_reverse_flow(
+	std::set<std::pair<size_t, size_t>> &_sources,
+	std::set<std::pair<size_t, size_t>> &_sinks,
+	int coeff) {
+	
+	parent.reset_all();
+	parent_edge.reset_all();
+	std::queue<size_t> q;
+	for (std::pair<size_t, size_t> const &_source : _sources) {
+		if (_source.second > 0 || coeff > 0) {
+			q.push(_source.first);
+			parent.set(_source.first, -2);
+		}
+		// We'll use -2 to denote 'no parent, this is a source'
+		// (as opposed to -1 which denotes 'no parent yet')
+	}
+	
+	int _sink = -1;
+	while (!q.empty()) {
+		size_t u = q.front();
+		q.pop();
+		
+		auto it = _sinks.lower_bound({u, 0});
+		if (it != _sinks.end() && it->first == u && (coeff > 0 || it->second > 0)) {
+			_sink = int(u);
+			break;
+		}
+		
+		for (size_t i = 0; i < E[u].size(); ++i) {
+			const vc_edge &edge = E[u][i];
+			const vc_edge &redge = E[edge.v][edge.rev];
+			if (redge.flow == redge.cap) continue;
+			if (!active[edge.v]) continue;
+			if (parent.get(edge.v) != -1) continue;
+			
+			parent.set(edge.v, u);
+			parent_edge.set(edge.v, i);
+			q.push(edge.v);
+		}
+	}
+	
+	if (_sink == -1) return 0;
+
+	int u = _sink, _source = _sink;
+	while (u != -2) {
+		int p = parent.get(u), pi = parent_edge.get(u);
+		if (p == -2) {
+			_source = u;
+			break;
+		}
+		
+		E[p][pi].flow--;
+		E[u][E[p][pi].rev].flow++;
 		
 		u = p;
 	}
